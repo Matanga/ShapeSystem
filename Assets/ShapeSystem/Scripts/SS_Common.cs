@@ -424,6 +424,22 @@ namespace VFX.ShapeSystem
             }
         }
 
+        public static void IndentMultiple(bool add, int amount)
+        {
+            if (add)
+            {
+                for (int i = 0; i < amount; i++)
+                {
+                    EditorGUI.indentLevel++;
+                }
+            }
+            else
+            {
+                EditorGUI.indentLevel--;
+            }
+
+        }
+
 
         #endregion
 

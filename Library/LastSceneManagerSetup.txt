@@ -1,0 +1,4 @@
+sceneSetups:
+- path: Assets/ShapeSystem/Scenes/Tests/SS_Test_BezierCurve.unity
+  isLoaded: 1
+  isActive: 1
