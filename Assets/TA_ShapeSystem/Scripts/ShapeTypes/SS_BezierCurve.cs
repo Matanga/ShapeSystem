@@ -5,10 +5,10 @@ using System.Collections.Generic;
 
 namespace VFX.ShapeSystem
 {
-        public enum KnotType {Linear,Smooth,Bezier }
+    public enum KnotType {Linear,Smooth,Bezier }
 
-        [System.Serializable]
-        public class ShapeKnot
+    [System.Serializable]
+    public class ShapeKnot
             {
                 public int myElementIndex;
                 public int myIndex;
@@ -89,7 +89,7 @@ namespace VFX.ShapeSystem
 
         }
 
-        public struct BezierSegment
+    public struct BezierSegment
         {
             public Vector3 A;
             public Vector3 B;
@@ -142,6 +142,13 @@ namespace VFX.ShapeSystem
 
 
         public Color curveColor = Color.blue;
+
+
+        public Vector3[] thePoints()
+        {
+            DivideCurveIntoSteps();
+            return curveSteps.ToArray();
+        }
 
 
 
@@ -586,10 +593,10 @@ namespace VFX.ShapeSystem
                     {
                         //CREATE A BEZIER SEGMENT 
                         BezierSegment seg = new BezierSegment();
-                        seg.A = element.knots[i].KWorldPos(transform);              //START POINT
-                        seg.B = element.knots[i].KHandleOutWorldPos(transform);     //START TANGENT
-                        seg.C = element.knots[i + 1].KHandleInWorldPos(transform);  //END TANGENT
-                        seg.D = element.knots[i + 1].KWorldPos(transform);          //END POINT
+                        seg.A = GetScaledVector( element.knots[i].KWorldPos(transform));              //START POINT
+                        seg.B = GetScaledVector(element.knots[i].KHandleOutWorldPos(transform));     //START TANGENT
+                        seg.C = GetScaledVector(element.knots[i + 1].KHandleInWorldPos(transform));  //END TANGENT
+                        seg.D = GetScaledVector(element.knots[i + 1].KWorldPos(transform));          //END POINT
 
 
                         //Draw it
@@ -597,6 +604,34 @@ namespace VFX.ShapeSystem
                         //DrawBezierSegment(seg);
                     }
                 }
+
+
+        void DrawElementV2(ShapeElement element)
+        {
+            // Debug.Log("Drawing element . Points: " + element.knots.Length);
+            for (int i = 0; i < element.knots.Length - 1; i++)
+            {
+                //CREATE A BEZIER SEGMENT 
+                BezierSegment seg = new BezierSegment();
+                seg.A = element.knots[i].KWorldPos(transform);              //START POINT
+                seg.B = element.knots[i].KHandleOutWorldPos(transform);     //START TANGENT
+                seg.C = element.knots[i + 1].KHandleInWorldPos(transform);  //END TANGENT
+                seg.D = element.knots[i + 1].KWorldPos(transform);          //END POINT
+
+                //Draw it
+                DrawBezierSegment(seg);
+                //DrawBezierSegment(seg);
+            }
+        }
+        
+
+        Vector3 GetScaledVector(Vector3 theVector)
+        {
+            return new Vector3(theVector.x * transform.lossyScale.x, theVector.y * transform.lossyScale.y, theVector.z * transform.lossyScale.z);
+        }
+
+
+
 
 
         ////////////////////////////////////////
@@ -628,15 +663,7 @@ namespace VFX.ShapeSystem
             }
 
         }
-
-
-        public Vector3[] thePoints()
-        {
-            DivideCurveIntoSteps();
-            return curveSteps.ToArray();
-        }
-
-
+        
 
         ////////////////////////////////////////
         /// DEBUG METHODS

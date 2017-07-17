@@ -120,7 +120,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\TA_ShapeSystem\Scripts\InstanceObjects\Editor\SS_FloorObjectEditor.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\HelperObjects\Editor\SS_FloorObjectEditor.cs" />
     <Compile Include="Assets\TA_ShapeSystem\Scripts\MainObjects\Editor\SS_LevelAreaEditor.cs" />
     <Compile Include="Assets\TA_ShapeSystem\Scripts\MainObjects\Editor\SS_LevelCanvasEditor.cs" />
     <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeInstancers\Editor\SS_FloorEditor.cs" />

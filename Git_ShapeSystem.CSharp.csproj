@@ -78,8 +78,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\TA_ShapeSystem\Scripts\InstanceObjects\SS_FloorObject.cs" />
-    <Compile Include="Assets\TA_ShapeSystem\Scripts\MainObjects\SS_Hole.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\HelperObjects\SS_FloorObject.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\HelperObjects\SS_Hole.cs" />
     <Compile Include="Assets\TA_ShapeSystem\Scripts\MainObjects\SS_LevelArea.cs" />
     <Compile Include="Assets\TA_ShapeSystem\Scripts\MainObjects\SS_LevelCanvas.cs" />
     <Compile Include="Assets\TA_ShapeSystem\Scripts\SS_Common.cs" />
