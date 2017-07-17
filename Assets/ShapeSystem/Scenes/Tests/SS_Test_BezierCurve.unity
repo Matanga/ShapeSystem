@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -125,7 +125,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &295748219
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -251,7 +251,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 308219256}
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalPosition: {x: -17.59, y: 3, z: -14.12}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -346,6 +346,90 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 17.185001, y: -156.117, z: -53.656002}
+--- !u!1 &1123693663
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1123693667}
+  - component: {fileID: 1123693666}
+  - component: {fileID: 1123693665}
+  - component: {fileID: 1123693664}
+  m_Layer: 0
+  m_Name: Plane
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!23 &1123693664
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1123693663}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_Materials:
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!64 &1123693665
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1123693663}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Convex: 0
+  m_InflateMesh: 0
+  m_SkinWidth: 0.01
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!33 &1123693666
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1123693663}
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &1123693667
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1123693663}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.7409286, y: -6.0628967, z: 45.30935}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1491729506
 GameObject:
   m_ObjectHideFlags: 0
@@ -368,8 +452,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1491729506}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 10.94, y: 1.13, z: -13.07}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -391,37 +475,68 @@ MonoBehaviour:
     knots:
     - myElementIndex: 0
       myIndex: 0
+      isSelected: 0
       kType: 0
-      kPos: {x: 0.4433565, y: 0, z: -8.842403}
+      kPos: {x: 11.335887, y: 0, z: -20.8615}
       kScale: {x: 0, y: 0, z: 0}
       kRotation: {x: 0, y: 0, z: 0}
-      kHandleIn: {x: 0, y: 0, z: -1}
-      kHandleOut: {x: -3.7550745, y: 0, z: 7.6994476}
+      kHandleIn: {x: 12.263942, y: 0, z: 5.720749}
+      kHandleOut: {x: -8.358069, y: 0, z: -3.4277706}
     - myElementIndex: 0
       myIndex: 1
+      isSelected: 0
       kType: 0
-      kPos: {x: 2.4400606, y: 0, z: 10.47705}
+      kPos: {x: -10.309113, y: 0, z: -10.615673}
       kScale: {x: 0, y: 0, z: 0}
       kRotation: {x: 0, y: 0, z: 0}
-      kHandleIn: {x: 3.369234, y: 0, z: -4.534787}
-      kHandleOut: {x: 0, y: 0, z: 1}
+      kHandleIn: {x: 0.38472748, y: 0, z: -15.516087}
+      kHandleOut: {x: -1.3541908, y: 0, z: 12.80027}
     - myElementIndex: 0
-      myIndex: 2
+      myIndex: 1
+      isSelected: 0
       kType: 0
-      kPos: {x: 0, y: 0, z: 0}
+      kPos: {x: 10.196718, y: 0, z: 17.265038}
       kScale: {x: 0, y: 0, z: 0}
       kRotation: {x: 0, y: 0, z: 0}
-      kHandleIn: {x: 0, y: 0, z: -1}
+      kHandleIn: {x: 1.8748035, y: 0, z: -10.815826}
+      kHandleOut: {x: -3.14536, y: 0, z: 8.498899}
+    - myElementIndex: 0
+      myIndex: 1
+      isSelected: 0
+      kType: 0
+      kPos: {x: -16.236975, y: 0, z: 17.464088}
+      kScale: {x: 0, y: 0, z: 0}
+      kRotation: {x: 0, y: 0, z: 0}
+      kHandleIn: {x: 1.0958099, y: 0, z: -12.080509}
+      kHandleOut: {x: -5.586235, y: 0, z: 23.336884}
+    - myElementIndex: 0
+      myIndex: 1
+      isSelected: 0
+      kType: 0
+      kPos: {x: -1.9170583, y: 0, z: 44.05748}
+      kScale: {x: 0, y: 0, z: 0}
+      kRotation: {x: 0, y: 0, z: 0}
+      kHandleIn: {x: 17.835804, y: 0, z: -12.664625}
+      kHandleOut: {x: -10.052255, y: 0, z: 5.3992767}
+    - myElementIndex: 0
+      myIndex: 1
+      isSelected: 1
+      kType: 0
+      kPos: {x: 4.157629, y: 0, z: 62.27631}
+      kScale: {x: 0, y: 0, z: 0}
+      kRotation: {x: 0, y: 0, z: 0}
+      kHandleIn: {x: -11.706614, y: 0, z: 1.4840851}
       kHandleOut: {x: 0, y: 0, z: 1}
-  selectedKnot:
-    myElementIndex: 0
-    myIndex: 0
+  selectedKnots:
+  - myElementIndex: 0
+    myIndex: 1
+    isSelected: 1
     kType: 0
-    kPos: {x: 0, y: 0, z: 0}
+    kPos: {x: 6.8743505, y: 0, z: 63.61473}
     kScale: {x: 0, y: 0, z: 0}
     kRotation: {x: 0, y: 0, z: 0}
-    kHandleIn: {x: 0, y: 0, z: 0}
-    kHandleOut: {x: 0, y: 0, z: 0}
-  selectedElementIndex: -1
-  selectedKnotIndex: -1
-  numSteps: 10
+    kHandleIn: {x: -11.706614, y: 0, z: 1.4840851}
+    kHandleOut: {x: 0, y: 0, z: 1}
+  BoxCol: {fileID: 0}
+  numSteps: 100
+  curveColor: {r: 0, g: 0, b: 1, a: 1}

@@ -9,6 +9,11 @@ namespace VFX.ShapeSystem
     [CustomEditor(typeof(SS_BezierCurve))]
     public class SS_BezierCurveInspector : Editor
     {
+
+        public bool creatingKnot;
+        bool ctrlFlag = false;
+        bool altFlag = false;
+
         //////////////////////////
         //////PROPERTIES
         //////PROPERTIES
@@ -23,10 +28,6 @@ namespace VFX.ShapeSystem
             }
         }
 
-        SerializedProperty selectedKnot;
-        SerializedProperty selectedElementIndex;
-        SerializedProperty selectedKnotIndex;
-
         //////////////////////////
         //////EDITOR METHODS
         //////EDITOR METHODS
@@ -35,19 +36,11 @@ namespace VFX.ShapeSystem
 
         void OnDisable()
         {
-            //Debug.Log("Deselecting");
-            Target.selectedKnot = null;
         }
 
         void OnEnable()
         {
-            Target.selectedKnot = null;
-            Target.selectedElementIndex = -1;
-            Target.selectedKnotIndex = -1;
 
-            selectedKnot = serializedObject.FindProperty("selectedKnot");
-            selectedElementIndex = serializedObject.FindProperty("selectedElementIndex");
-            selectedKnotIndex = serializedObject.FindProperty("selectedKnotIndex");
         }
 
         void OnSceneGUI()
@@ -57,75 +50,44 @@ namespace VFX.ShapeSystem
                 //Debug.Log("Element "+ i);
                 DrawElementHandles(Target.elements[i]);
             }
+            /*
+            //VERTEX TYPE INPUT
             if (Target.selectedElementIndex >=0)
             {
                 //Debug.Log("a knot is selected");
                 CheckForVertexTypeCycle();
+            }*/
+            if (creatingKnot)
+            {
+                Debug.Log("Moving Sphere");
+
+                Handles.CubeHandleCap(00021,MousePosRoutine(),Quaternion.identity,0.5f,EventType.repaint);
+
+                //Debug.Log(hit.point);
             }
-            CheckMouseInput();        
+            CheckKeyboardModifierInput();
         }
 
-
-        /*
+        
         public override void OnInspectorGUI()
         {
+            DrawDefaultInspector();
+
             serializedObject.Update();
             EditorGUI.BeginChangeCheck();
 
-            if (selectedElementIndex.intValue != -1)
-            {
-                EditorGUILayout.BeginHorizontal("button");
-                EditorGUILayout.LabelField("Selection:");
-                //SS_Common.IndentMultiple(false, 10);
-                EditorGUI.indentLevel--;
-                EditorGUI.indentLevel--;
-                EditorGUI.indentLevel--;
-                EditorGUI.indentLevel--;
-                EditorGUI.indentLevel--;
-                EditorGUI.indentLevel--;
-                EditorGUI.indentLevel--;
-                EditorGUI.indentLevel--;
+            EditorGUILayout.LabelField(("Length: "+ Target.GetCurveTotalLenght().ToString()));
+            
 
-                EditorGUILayout.LabelField("Element " + selectedElementIndex.intValue.ToString());
-                EditorGUI.indentLevel--;
-                EditorGUI.indentLevel--;
-                EditorGUI.indentLevel--;
-                EditorGUI.indentLevel--;
-                EditorGUI.indentLevel--;
-                EditorGUI.indentLevel--;
-                EditorGUI.indentLevel--;
-                //EditorGUILayout.PropertyField(selectedElementIndex);
-                //SS_Common.IndentMultiple(true, 10);
-
-                EditorGUILayout.LabelField("Vert " + selectedKnotIndex.intValue.ToString());
-                //EditorGUILayout.PropertyField(selectedKnotIndex);
-
-                EditorGUI.indentLevel++;
-                EditorGUI.indentLevel++;
-                EditorGUI.indentLevel++;
-                EditorGUI.indentLevel++;
-                EditorGUI.indentLevel++;
-                EditorGUI.indentLevel++;
-                EditorGUI.indentLevel++;
-                EditorGUI.indentLevel++;
-                EditorGUI.indentLevel++;
-                EditorGUI.indentLevel++;
-                EditorGUI.indentLevel++;
-                EditorGUI.indentLevel++;
-                EditorGUI.indentLevel++;
-                EditorGUI.indentLevel++;
-                EditorGUI.indentLevel++;
-
-                EditorGUILayout.EndHorizontal();
-            }
 
             if (EditorGUI.EndChangeCheck())
             {
                 Undo.RecordObject(Target, "Switch Transform Flags");
             }
             serializedObject.ApplyModifiedProperties();
+
         }
-        */
+        
         //////////////////////////
         ////// HANDLES DRAWERS
         ////// HANDLES DRAWERS
@@ -161,7 +123,8 @@ namespace VFX.ShapeSystem
 
             Handles.color = Color.yellow;
 
-            Vector3 knotWorldPos = Target.transform.TransformPoint(knot.kPos);
+            Vector3 knotWorldPos = knot.KWorldPos(Target.transform);
+
 
             if (handleIn)
             {
@@ -185,9 +148,6 @@ namespace VFX.ShapeSystem
 
                 Handles.color = Color.yellow;
                 Handles.DrawLine(knotWorldPos, (knotWorldPos + knot.kHandleIn));
-
-
-
 
             }
             if (handleOut)
@@ -225,75 +185,32 @@ namespace VFX.ShapeSystem
             if (Handles.Button(Target.transform.TransformPoint(knot.kPos), Quaternion.Euler(90, 0, 0), 0.2f, 0.2f, Handles.RectangleHandleCap))
             {
 
+                //Debug.Log("Selected Knot " + Target.selectedElementIndex.ToString() + " " + Target.selectedKnotIndex.ToString());
 
-                if (altFlag) Debug.Log("knot selected with alt pressed");
+                //Deselect previous knots
+                if (Target.selectedKnots.Count != 0)
+                {
+                    for (int i = Target.selectedKnots.Count - 1; i >= 0; i--)
+                    {
+                        Target.selectedKnots[i].isSelected = false;
+                        Target.selectedKnots.RemoveAt(i);
+                    }                
+                }
+                knot.isSelected = true;
+                Target.selectedKnots.Add(knot);
 
-                Debug.Log("Selected Knot " + Target.selectedElementIndex.ToString() + " " + Target.selectedKnotIndex.ToString());
-                Target.selectedKnot = knot;
-                Target.selectedElementIndex = knot.myElementIndex;
-                Target.selectedKnotIndex = knot.myIndex;
+
                 //Debug.Log("The button was pressed!");
 
+                if (altFlag) Debug.Log("knot selected with alt pressed");
                 if (ctrlFlag)
                 {
-                    Debug.Log("knot selected with ctrl pressed");
-                    Target.elements[Target.selectedElementIndex].AddKnot((Target.elements[Target.selectedElementIndex].knots.Length), Vector3.zero);
-
-                }
-
-
-
-            }
-        }
-
-
-        bool ctrlFlag = false;
-        bool altFlag = false;
-
-
-        void CheckMouseInput()
-        {
-            Event e = Event.current;
-            switch (e.type)
-            {
-                case EventType.keyDown:
-                {
-                    if (e.control)
-                    {
-                       // Debug.Log("CTRL");
-                        ctrlFlag = true;
-                    }
-                    if (e.alt)
-                    {
-                        //Debug.Log("ALT");
-                        altFlag = true;
-                    }
-                    if (Event.current.keyCode == (KeyCode.A))
-                    {
-                        //Debug.Log("A");
-                    }
-                    break;
-                }
-
-                case EventType.keyUp:
-                {
-                    if (ctrlFlag) ctrlFlag = false;
-                    if (altFlag) altFlag = false;
-                    break;
+                    //Debug.Log("knot selected with ctrl pressed");
+                    SwitchCollider();
+                    creatingKnot = true;
+                    //Target.elements[Target.selectedElementIndex].AddKnot((Target.elements[Target.selectedElementIndex].knots.Length), Vector3.zero);
                 }
             }
-        }
-
-        void MousePosRoutine()
-        {
-            Vector3 mousePosition = Event.current.mousePosition;
-            mousePosition.y = SceneView.currentDrawingSceneView.camera.pixelHeight - mousePosition.y;
-            mousePosition = SceneView.currentDrawingSceneView.camera.ScreenToWorldPoint(mousePosition);
-            mousePosition.y = -mousePosition.y;
-
-            Handles.CubeHandleCap(000010, mousePosition, Quaternion.identity, 0.25f, EventType.Repaint);
-
-            Debug.Log(mousePosition);
         }
 
         //////////////////////////
@@ -313,8 +230,6 @@ namespace VFX.ShapeSystem
                 //Debug.Log("First Pos: " + firstKnotWorldPos);
                 //Debug.Log("Second Pos: " + secondKnotWorldPos);
 
-
-
                 //Gizmos.DrawLine(firstKnotWorldPos, secondKnotWorldPos);
             }
         }
@@ -326,7 +241,9 @@ namespace VFX.ShapeSystem
             //DRAW KNOTS
             for (int i = 0; i < element.knots.Length; i++)
             {
-                if (element.knots[i] == Target.selectedKnot)
+
+                if (element.knots[i].isSelected)
+                //if (element.knots[i] == Target.selectedKnot)
                 {
                     DrawKnotMovementHandle(element.knots[i]);
                     DrawKnotBezierHandles(element.knots[i], true, true);
@@ -337,13 +254,96 @@ namespace VFX.ShapeSystem
                 }
             }
         }
-        
+
+        //////////////////////////
+        ////// HELPER METHODS
+        ////// HELPER METHODS
+        ////// HELPER METHODS
+        //////////////////////////
+
+        void SwitchCollider()
+        {
+            if (Target.BoxCol == null)
+            {
+                Target.BoxCol = Target.gameObject.AddComponent<BoxCollider>();
+                Target.BoxCol.size = new Vector3(1000.0f, 0.2f, 1000.0f);
+            }
+            else
+            {
+                DestroyImmediate(Target.BoxCol);
+            }
+        }
+
         //////////////////////////
         ////// INPUT METHODS
         ////// INPUT METHODS
         ////// INPUT METHODS
         //////////////////////////
 
+        void CheckKeyboardModifierInput()
+        {
+            Event e = Event.current;
+            switch (e.type)
+            {
+                case EventType.keyDown:
+                    {
+                        if (e.control)
+                        {
+                            if (!ctrlFlag)
+                            {
+                                Debug.Log("CTRL down");
+
+                                ctrlFlag = true;
+                            }
+                        }
+                        if (e.alt)
+                        {
+                            if (!altFlag)
+                            {
+                                Debug.Log("ALT down");
+                                altFlag = true;
+                            }
+                        }
+                        break;
+                    }
+                case EventType.keyUp:
+                    {
+                        if (ctrlFlag)
+                        {
+                            ctrlFlag = false;
+                            if (creatingKnot)
+                            {
+                                creatingKnot = false;
+                                SwitchCollider();
+                            }
+                            Debug.Log("Ctrl up");
+                        }
+                        if (altFlag)
+                        {
+                            Debug.Log("Alt Up");
+                            altFlag = false;
+                        }
+                        break;
+                    }
+            }
+        }
+
+        Vector3 MousePosRoutine()
+        {
+            Vector2 guiPosition = Event.current.mousePosition;
+            Ray ray = HandleUtility.GUIPointToWorldRay(guiPosition);
+            RaycastHit hit;
+
+            Vector3 theVec = new Vector3();
+
+            if (Physics.Raycast(ray, out hit))
+            {
+                theVec = hit.point;
+            }
+            return theVec;
+        }
+
+        /*
         void CheckForVertexTypeCycle()
         {
             Event e = Event.current;
@@ -357,6 +357,7 @@ namespace VFX.ShapeSystem
                     Debug.Log("Switiching selected vertex Type");
 
                     KnotType currentType = Target.selectedKnot.kType;
+
                     int value = (int)currentType;
 
                     int myEnumMemberCount = KnotType.GetNames(typeof(KnotType)).Length;
@@ -383,6 +384,7 @@ namespace VFX.ShapeSystem
                 }
             }
         }
+        */
 
     }
 }

@@ -126,7 +126,7 @@ namespace VFX.ShapeSystem
         }
 
 
-        public ShapeTransform theShapeTransform;
+        public SS_BezierCurve theShapeTransform;
 
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace VFX.ShapeSystem
             {
                 if (theShapeTransform != null)
                 {
-                    return theShapeTransform.thePoints.ToArray();
+                    return theShapeTransform.thePoints();
                 }
                 else
                 {                
@@ -368,7 +368,7 @@ namespace VFX.ShapeSystem
             if (theShapeTransform != null)
             {
                 //Create an array for each original Segment
-                for (int i = 0; i < theShapeTransform.thePoints.Count; i++)
+                for (int i = 0; i < theShapeTransform.thePoints().Length-1; i++)
                 {
                     //Debug.Log("Adding empty array at index " + i);
                     myShapeVersion.Add(new Vector3[0]);

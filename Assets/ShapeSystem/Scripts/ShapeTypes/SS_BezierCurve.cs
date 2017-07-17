@@ -10,19 +10,34 @@ namespace VFX.ShapeSystem
         [System.Serializable]
         public class ShapeKnot
             {
-
                 public int myElementIndex;
                 public int myIndex;
 
+                public bool isSelected;
 
                 public KnotType kType= KnotType.Linear;
 
                 public Vector3 kPos;
+                public Vector3 KWorldPos(Transform t)
+                {
+                    return (t.TransformPoint(kPos)) ;                   
+                }                
+            
                 public Vector3 kScale;
                 public Vector3 kRotation;
 
+            
                 public Vector3 kHandleIn;
+                public Vector3 KHandleInWorldPos(Transform t)
+                {
+                    return (t.TransformPoint(kPos)+kHandleIn);
+                }                
+            
                 public Vector3 kHandleOut;
+                public Vector3 KHandleOutWorldPos(Transform t)
+                {
+                    return (t.TransformPoint(kPos) + kHandleOut);
+                }   
 
             }
 
@@ -93,8 +108,6 @@ namespace VFX.ShapeSystem
         //////////////////          PROPERTIES              /////////////////
         /////////////////////////////////////////////////////////////////////
 
-
-
         ////////////////////////////////////////
         /// ELEMENTS
         /// ELEMENTS
@@ -107,31 +120,39 @@ namespace VFX.ShapeSystem
         /// SELECTION
         ////////////////////////////////////////
 
-        public ShapeKnot selectedKnot=null;
+        public List<ShapeKnot> selectedKnots = new List<ShapeKnot>();
 
-
-        public int selectedElementIndex;
-        public int selectedKnotIndex;
-
+        public BoxCollider BoxCol;
 
         ////////////////////////////////////////
         /// CURVE PROPERTIES
         /// CURVE PROPERTIES
         ////////////////////////////////////////
+
+
+
+        //Lista de todas las posiciones de la curva                                   
+        private List<Vector3> curveSteps = new List<Vector3>();
+        private List<int> debugCurveStepsColors = new List<int>();
+
 
         [Header("Num Steps")]
         public int numSteps = 10;
 
-        ////////////////////////////////////////
-        /// LEGACY PROPERTIES
-        /// LEGACY PROPERTIES
-        ////////////////////////////////////////
 
-        //Easier to use ABCD for the positions of the points so they are the same as in the tutorial image
 
+        public Color curveColor = Color.blue;
+
+
+
+
+        ////////////////////////////////////////
+        /// DEBUG PROPERTIES
+        /// DEBUG PROPERTIES
+        ////////////////////////////////////////
 
         //An array with colors to display the line segments that make up the final curve
-        Color[] colorsArray = { Color.white, Color.red, Color.blue, Color.magenta, Color.black };
+        Color[] colorsArray = { Color.white, Color.red, Color.yellow, Color.magenta, Color.black, Color.cyan, Color.green };
 
         //////////////////////////////////////////////////////////////////
         //////////////////          METHODS              /////////////////
@@ -172,8 +193,6 @@ namespace VFX.ShapeSystem
             elements[0].knots[0].kHandleOut = new Vector3(0, 0, 1);
 
 
-
-
             //Create the second knot
             elements[0].knots[1] = new ShapeKnot();
             //Setup the element Index
@@ -182,13 +201,13 @@ namespace VFX.ShapeSystem
             elements[0].knots[1].myIndex = 1;
 
 
-
             //Position of the second knot 
             elements[0].knots[1].kPos = new Vector3(0, 0, 1);
             //Handle in of the second Knot
             elements[0].knots[1].kHandleIn = new Vector3(0, 0, -1);
             //Handle out of the second Knot
             elements[0].knots[1].kHandleOut = new Vector3(0, 0, 1);            
+        
         }
 
         void Reset()
@@ -334,15 +353,305 @@ namespace VFX.ShapeSystem
             return t;
         }
 
-        //Lista de todas las posiciones de la curva                                     <======= EDIT MIO
-        private List<Vector3> curveSteps = new List<Vector3>();
-        public List<Vector3> CurveSteps
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>a Vector3 in world coordinates </returns>
+        Vector3 GetPosAtCurvePoint(BezierSegment seg, float dist)
         {
-            get { return curveSteps; }
+
+            //Find the total length of the curve
+            float totalLength = GetLengthSimpsons(0f, 1f, seg);
+
+            //Use Newton–Raphsons method to find the t value from the start of the curve 
+            //to the end of the distance we have
+            float t = FindTValue(dist, totalLength, seg);
+
+            //Get the coordinate on the Bezier curve at this t value
+            Vector3 pos = DeCasteljausAlgorithm(t, seg);
+
+            return pos;
+        }
+
+
+        ////////////////////////////////////////
+        /// UTILITIES UI
+        /// UTILITIES UI
+        ////////////////////////////////////////
+
+
+        //Divide the curve into equal steps
+        public void DivideCurveIntoSteps()
+        {
+            float totalLenght = GetCurveTotalLenght();
+            float sectionLength = totalLenght / numSteps;
+
+            /*   
+                    20          8          35                 17                -segmentLenghts     N
+                    
+             X -------------X--------X-------------------X-----------X          -theSegs            N
+              
+             0              20      28                   63          80         -knotDistances      N+1    
+             
+             */
+            
+            //Create A list of Bezier Segment
+            List<BezierSegment> theSegs = new List<BezierSegment>();
+            //Create A list of Bezier Segment Lengths
+            List<float> segmentLenghts = new List<float>();
+
+            //For Each Element
+            for (int x = 0; x < elements.Length; x++)
+            {
+                for (int i = 0; i < elements[x].knots.Length - 1; i++)
+                {
+                    //CREATE A BEZIER SEGMENT 
+                    BezierSegment seg = new BezierSegment();
+                    seg.A = elements[x].knots[i].KWorldPos(transform);              //START POINT
+                    seg.B = elements[x].knots[i].KHandleOutWorldPos(transform);     //START TANGENT
+                    seg.C = elements[x].knots[i + 1].KHandleInWorldPos(transform);  //END TANGENT
+                    seg.D = elements[x].knots[i + 1].KWorldPos(transform);          //END POINT
+
+                    theSegs.Add(seg);
+
+                    segmentLenghts.Add(GetLengthSimpsons(0f, 1f, seg));
+                }
+            }
+
+            //Create a list of knot Distances
+            List<float> knotDistances = new List<float>();
+            float tempDist=0;            
+            knotDistances.Add(tempDist);
+            for (int i = 0; i < segmentLenghts.Count; i++)
+			{
+                tempDist=tempDist+segmentLenghts[i];
+                knotDistances.Add(tempDist);
+			}
+
+            //Add the first point
+            curveSteps.Clear();
+            curveSteps.Add(theSegs[0].A);
+
+
+            debugCurveStepsColors.Clear();
+            debugCurveStepsColors.Add(0);
+
+            //For each step
+            for (int i = 1; i < numSteps; i++)
+            {
+                //Get this point dist
+                float distAlong = sectionLength * i;
+
+                //Find out in wich segment it falls
+                int currSegIndex = 0;
+                for (int f = 0; f < knotDistances.Count-1; f++)
+                {
+                    if (distAlong > knotDistances[f])
+                    {
+                        if (distAlong < knotDistances[f + 1])
+                        { 
+                            currSegIndex = f ;
+                        }
+                    }
+                }
+
+                //Find out at which distance along that segment the point falls
+                float segPointDist = distAlong - knotDistances[currSegIndex];
+                
+                //Use Newton–Raphsons method to find the t value from the start of the curve 
+                //to the end of the distance we have
+                float t = FindTValue(segPointDist, segmentLenghts[currSegIndex], theSegs[currSegIndex]);
+
+                //Get the coordinate on the Bezier curve at this t value
+                Vector3 pos = DeCasteljausAlgorithm(t, theSegs[currSegIndex]);
+
+                //Add the next point to the curveSteps list
+                curveSteps.Add(pos);
+                debugCurveStepsColors.Add(currSegIndex);
+            }
+
+        }
+
+
+
+        /// <summary>
+        /// Gets the sum of all individuals segments in this curve
+        /// </summary>
+        /// <returns></returns>
+        public float GetCurveTotalLenght()
+        {
+            float TotalLenghtSum = 0;
+            //Draw Each Element
+            for (int x = 0; x < elements.Length; x++)
+            {
+                //Debug.Log("Element "+ i);
+
+                for (int i = 0; i < elements[x].knots.Length - 1; i++)
+                {
+                    //CREATE A BEZIER SEGMENT 
+                    BezierSegment seg = new BezierSegment();
+                    seg.A = elements[x].knots[i].KWorldPos(transform);              //START POINT
+                    seg.B = elements[x].knots[i].KHandleOutWorldPos(transform);     //START TANGENT
+                    seg.C = elements[x].knots[i + 1].KHandleInWorldPos(transform);  //END TANGENT
+                    seg.D = elements[x].knots[i + 1].KWorldPos(transform);          //END POINT
+
+                    float totalLength = GetLengthSimpsons(0f, 1f, seg);
+                    TotalLenghtSum = TotalLenghtSum + totalLength;
+                }
+            }
+            return TotalLenghtSum;
+        }
+
+
+        ////////////////////////////////////////
+        /// DRAWING UI
+        /// DRAWING UI
+        /// DRAWING UI
+        ////////////////////////////////////////
+
+                ////////////////////////////////////////
+                /// BEZIER CURVE DRAWING METHODS
+                /// BEZIER CURVE DRAWING METHODS
+                ////////////////////////////////////////
+
+                void DrawBezierSegment(BezierSegment seg)
+                {
+                    UnityEditor.Handles.DrawBezier(seg.A, seg.D, seg.B, seg.C, Color.red, null, 1);
+                }
+                
+                void DrawBezierSegmentTest(BezierSegment seg)
+                {
+
+                    //The start position of the line
+                    Vector3 lastPos = transform.TransformPoint(seg.A);
+
+                    //The resolution of the line
+                    //Make sure the resolution is adding up to 1, so 0.3 will give a gap at the end, but 0.2 will work
+                    float resolution = 0.02f;
+
+                    //How many loops?
+                    int loops = Mathf.FloorToInt(1f / resolution);
+
+                    for (int i = 1; i < loops; i++)
+                    {
+                        //Which t position are we at?
+                        float t = i * resolution;
+
+                        //Find the coordinates between the control points with a Catmull-Rom spline
+                        Vector3 newPos = DeCasteljausAlgorithm(t, seg);
+
+                        //Draw this line segment
+                        Gizmos.DrawLine(lastPos, newPos);
+
+                        //Save this pos so we can draw the next line segment
+                        lastPos = newPos;
+                    }
+
+                }
+
+
+                ////////////////////////////////////////
+                /// LINEAR CURVE DRAWING METHODS
+                /// LINEAR CURVE DRAWING METHODS
+                ////////////////////////////////////////
+                void DrawLinearSegment(ShapeKnot firstKnot, ShapeKnot secondKnot)
+                {
+                    //Debug.Log("Drawing Segment");
+                    if (firstKnot.kType == KnotType.Linear && secondKnot.kType == KnotType.Linear)
+                    {
+                        Vector3 firstKnotWorldPos = transform.TransformPoint(firstKnot.kPos);
+                        Vector3 secondKnotWorldPos = transform.TransformPoint(secondKnot.kPos);
+                        Gizmos.DrawLine(firstKnotWorldPos, secondKnotWorldPos);
+                    }
+                }
+
+                void DrawLinearSegment(Vector3 firstPos, Vector3 secondPos)
+                {
+                    Gizmos.DrawLine(firstPos, secondPos);                    
+                }
+
+
+                ////////////////////
+                /// DRAWING METHODS
+                /// DRAWING METHODS
+                ////////////////////
+
+                void DrawElement(ShapeElement element)
+                {
+                   // Debug.Log("Drawing element . Points: " + element.knots.Length);
+                    for (int i = 0; i < element.knots.Length - 1; i++)
+                    {
+                        //CREATE A BEZIER SEGMENT 
+                        BezierSegment seg = new BezierSegment();
+                        seg.A = element.knots[i].KWorldPos(transform);              //START POINT
+                        seg.B = element.knots[i].KHandleOutWorldPos(transform);     //START TANGENT
+                        seg.C = element.knots[i + 1].KHandleInWorldPos(transform);  //END TANGENT
+                        seg.D = element.knots[i + 1].KWorldPos(transform);          //END POINT
+
+
+                        //Draw it
+                        DrawBezierSegment(seg);
+                        //DrawBezierSegment(seg);
+                    }
+                }
+
+
+        ////////////////////////////////////////
+        /// MONOBEHAVIOUR METHODS
+        /// MONOBEHAVIOUR METHODS
+        ////////////////////////////////////////
+
+        void OnDrawGizmos()
+        {
+            //The Bezier curve's color
+            Gizmos.color = curveColor;
+
+            //Draw Each Element
+            for (int i = 0; i < elements.Length; i++)
+            {
+                //Debug.Log("Element "+ i);
+                DrawElement(elements[i]);
+            }
+
+            Gizmos.color = Color.green;
+
+
+            //Draws debug segments
+            DivideCurveIntoSteps();
+            for (int i = 0; i < curveSteps.Count-1; i++)
+            {
+                Gizmos.color = colorsArray[debugCurveStepsColors[i]];
+                DrawLinearSegment(curveSteps[i], curveSteps[i + 1]);
+            }
+
+        }
+
+
+        public Vector3[] thePoints()
+        {
+            DivideCurveIntoSteps();
+            return curveSteps.ToArray();
+        }
+
+
+
+        ////////////////////////////////////////
+        /// DEBUG METHODS
+        /// DEBUG METHODS
+        ////////////////////////////////////////
+
+        //Lista de todas las posiciones de la curva   
+        private List<Vector3> segmentSteps = new List<Vector3>();
+        public List<Vector3> SegmentSteps
+        {
+            get { return segmentSteps; }
         }
 
         //Divide the curve into equal steps
-        public void DivideCurveIntoSteps(BezierSegment seg)
+        public void DivideSegmentIntoSteps(BezierSegment seg)
         {
             //Find the total length of the curve
             float totalLength = GetLengthSimpsons(0f, 1f, seg);
@@ -351,8 +660,8 @@ namespace VFX.ShapeSystem
             int parts = numSteps;
 
             //reset the curve steps Array                                               <======= EDIT MIO
-            curveSteps.Clear();
-            curveSteps.Add(transform.TransformPoint(seg.A));
+            segmentSteps.Clear();
+            segmentSteps.Add(transform.TransformPoint(seg.A));
 
 
             //What's the length of one section?
@@ -364,12 +673,6 @@ namespace VFX.ShapeSystem
             //The curve's start position
             Vector3 lastPos = seg.A;
 
-            //The Bezier curve's color
-            //Need a seed or the line will constantly change color
-            Random.InitState(12345);
-
-            int lastRandom = Random.Range(0, colorsArray.Length);
-
             for (int i = 1; i <= parts; i++)
             {
                 //Use Newton–Raphsons method to find the t value from the start of the curve 
@@ -377,148 +680,21 @@ namespace VFX.ShapeSystem
                 float t = FindTValue(currentDistance, totalLength, seg);
 
                 //Get the coordinate on the Bezier curve at this t value
-                Vector3 pos = DeCasteljausAlgorithm(t,seg);
-
-
-                //Draw the line with a random color
-                int newRandom = Random.Range(0, colorsArray.Length);
-
-                //Get a different random number each time
-                while (newRandom == lastRandom)
-                {
-                    newRandom = Random.Range(0, colorsArray.Length);
-                }
-
-                lastRandom = newRandom;
-
-                Gizmos.color = colorsArray[newRandom];
-
-                Gizmos.DrawLine(lastPos, pos);
+                Vector3 pos = DeCasteljausAlgorithm(t, seg);
 
 
                 //Save the last position
                 lastPos = pos;
 
                 //Add current pos to vector list                                                        <======= EDIT MIO
-                curveSteps.Add(transform.TransformPoint(pos));
+                segmentSteps.Add(transform.TransformPoint(pos));
 
                 //Add to the distance traveled on the line so far
                 currentDistance += sectionLength;
             }
         }
-
-        ////////////////////////////////////////
-        /// DRAWING UI
-        /// DRAWING UI
-        ////////////////////////////////////////
-
-        void HCDrawBezierSegment(Vector3 start, Vector3 startHandle, Vector3 endHandle, Vector3 end)
-        {
-
-            //A = startPoint.position;
-            //B = controlPointStart.position;
-            //C = controlPointEnd.position;
-            //D = endPoint.position;
-
-            BezierSegment seg = new BezierSegment();
-            seg.A = transform.TransformPoint( start );
-            seg.B = transform.TransformPoint(startHandle );
-            seg.C = transform.TransformPoint(endHandle);
-            seg.D = transform.TransformPoint(end);
-
-
-            //The start position of the line
-            Vector3 lastPos = transform.TransformPoint(start); 
-
-            //The resolution of the line
-            //Make sure the resolution is adding up to 1, so 0.3 will give a gap at the end, but 0.2 will work
-            float resolution = 0.02f;
-
-            //How many loops?
-            int loops = Mathf.FloorToInt(1f / resolution);
-
-            for (int i = 1; i < loops; i++)
-            {
-                //Which t position are we at?
-                float t = i * resolution;
-
-                //Find the coordinates between the control points with a Catmull-Rom spline
-                Vector3 newPos = DeCasteljausAlgorithm(t, seg);
-
-                //Draw this line segment
-                Gizmos.DrawLine(lastPos, newPos);
-
-                //Save this pos so we can draw the next line segment
-                lastPos = newPos;
-            }
-
-
-
-
-        }
-
-        void DrawSegment(ShapeKnot firstKnot, ShapeKnot secondKnot)
-        {
-            //Debug.Log("Drawing Segment");
-            if (firstKnot.kType == KnotType.Linear && secondKnot.kType == KnotType.Linear)
-            {
-                Vector3 firstKnotWorldPos = transform.TransformPoint(firstKnot.kPos);
-                Vector3 secondKnotWorldPos = transform.TransformPoint(secondKnot.kPos);
-
-                //Debug.Log("First Pos: " + firstKnotWorldPos);
-                //Debug.Log("Second Pos: " + secondKnotWorldPos);
-
-
-
-                Gizmos.DrawLine(firstKnotWorldPos, secondKnotWorldPos);
-            }
-        }
-
-        void DrawElement(ShapeElement element)
-        {
-           // Debug.Log("Drawing element . Points: " + element.knots.Length);
-
-            for (int i = 0; i < element.knots.Length - 1; i++)
-            {
-                //Debug.Log("Drawing point : " + i );
-                DrawSegment(element.knots[i], element.knots[i + 1]);
-            }
-        }
-
-        void OnDrawGizmos()
-        {
-            //Debug.Log("Drawing");
-
-            //The Bezier curve's color
-            Gizmos.color = Color.white;
-
-            //Draw Segments
-
-            HCDrawBezierSegment
-            (
-                elements[0].knots[0].kPos,
-                elements[0].knots[0].kHandleOut,
-                elements[0].knots[1].kHandleIn,
-                elements[0].knots[1].kPos
-            );
-
-            for (int i = 0; i < elements.Length; i++)
-            {
-                //Debug.Log("Element "+ i);
-                //DrawElement(elements[i]);
-            }
-
-            //Also draw lines between the control points and endpoints
-            Gizmos.color = Color.green;
-
-            //Draw Handles
-            //Gizmos.DrawLine(A, B);
-            //Gizmos.DrawLine(C, D);
-
-            //DivideCurveIntoSteps();
-        }
-        
+    
+    
     }
-
 
 }
