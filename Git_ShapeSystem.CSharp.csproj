@@ -78,28 +78,25 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\ShapeSystem\Scripts\Legacy_Test\HoudiniCurveReader.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\Legacy_Test\SS_Base.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\Legacy_Test\SS_Rectangle.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\Legacy_Test\Test_SnapRectTransforms.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\SS_Common.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeInstanceObjects\SS_FloorObject.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeInstancers\SS_Floor.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeInstancers\SS_FloorRepeater.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeInstancers\SS_GridInstancer.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeInstancers\SS_GridScatter.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeInstancers\SS_RectInstancer.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeInstancers\SS_ShapeScatter.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeInstancers\SS_Wall.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeObjects\SS_Hole.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeObjects\SS_LevelArea.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeObjects\SS_LevelCanvas.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeTypes\BezierCurve.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeTypes\SS_BezierCurve.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeTypes\SS_Circular.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeTypes\SS_FreeHand.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeTypes\SS_Line.cs" />
-    <Compile Include="Assets\ShapeSystem\Scripts\ShapeTypes\ShapeTransform.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\InstanceObjects\SS_FloorObject.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\MainObjects\SS_Hole.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\MainObjects\SS_LevelArea.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\MainObjects\SS_LevelCanvas.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\SS_Common.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeInstancers\SS_Floor.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeInstancers\SS_FloorRepeater.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeInstancers\SS_GridInstancer.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeInstancers\SS_GridScatter.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeInstancers\SS_RectInstancer.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeInstancers\SS_ShapeScatter.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeInstancers\SS_Wall.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeTypes\BezierCurve.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeTypes\SS_BezierCurve.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeTypes\SS_Circular.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeTypes\SS_FreeHand.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeTypes\SS_Line.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeTypes\ShapeTransform.cs" />
+    <Compile Include="Assets\TA_ShapeSystem\Scripts\VFX_Tool_LoftRenderer\VFX_LoftRenderer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>
