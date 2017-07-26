@@ -184,7 +184,7 @@ namespace VFX.ShapeSystem
         public Vector3[] thePoints()
         {
             curveSteps.Clear();
-            curveSteps=SS_Common.DivideCurveIntoSteps(numSteps, elements[0], transform);
+            curveSteps=SS_Common.ResampleCurve(numSteps, elements[0], transform);
             return curveSteps.ToArray();
         }
 
@@ -435,7 +435,7 @@ namespace VFX.ShapeSystem
         {
             //Draws debug segments
             curveSteps.Clear();
-            curveSteps = SS_Common.DivideCurveIntoSteps(numSteps, elements[0], transform);
+            curveSteps = SS_Common.ResampleCurve(numSteps, elements[0], transform);
             for (int i = 0; i < curveSteps.Count - 1; i++)
             {
                 if (i % 2 == 0)

@@ -292,7 +292,7 @@ namespace VFX.ShapeSystem
         */
 
         /// <summary>
-        /// Gets all the individual vector3 arrays for all the segments 
+        /// Gets all the individual vector3 arrays for all the segments ============> CIRCLE LOFT
         /// in the loft
         /// </summary>
         public void GetSegmentsPointsLoop()
@@ -313,10 +313,7 @@ namespace VFX.ShapeSystem
 
         }
 
-
-
-
-
+        
 
 
 
@@ -334,16 +331,13 @@ namespace VFX.ShapeSystem
         {
             totalSegments = myPath.thePoints().Length;
 
-
             allSegmentsPoints = new Vector3[totalSegments][];
-
 
             Vector3 dir = new Vector3();
 
             //Get all the points
             for (int i = 0; i < allSegmentsPoints.Length; i++)
             {
-
                 if (i != allSegmentsPoints.Length - 1)
                 {
                     dir = Vector3.Normalize(myPath.thePoints()[i + 1] - myPath.thePoints()[i]);
@@ -352,9 +346,7 @@ namespace VFX.ShapeSystem
                 {
                     dir = Vector3.Normalize(myPath.thePoints()[i] - myPath.thePoints()[i - 1]);
                 }
-
                 allSegmentsPoints[i] = GetSegmentPointsAtPos(myPath.thePoints()[i], dir);
-
             }
         }
 

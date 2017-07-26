@@ -80,7 +80,7 @@ namespace VFX.ShapeSystem
 
             DrawResampleUI();
 
-            EditorGUILayout.LabelField(("Length: "+SS_Common.GetCurveTotalLength(Target.elements[0],Target.transform).ToString()));
+            EditorGUILayout.LabelField(("Length: "+SS_Common.GetCurveLength(Target.elements[0],Target.transform).ToString()));
             
             if (EditorGUI.EndChangeCheck())
             {
@@ -441,73 +441,7 @@ namespace VFX.ShapeSystem
             SwitchCollider();            
         }
 
-        void CheckKeyboardModifierInput()
-        {
-            Event e = Event.current;
-            switch (e.type)
-            {
-                case EventType.keyDown:
-                    {
-                        if (e.control)
-                        {
-                            if (!ctrlFlag)
-                            {
-                                Debug.Log("CTRL down");
-                                if (!Target.creatingKnot)
-                                {
-                                    StartKnotCreation();
-                                }
 
-                                ctrlFlag = true;
-                            }
-                        }
-                        if (e.alt)
-                        {
-                            if (!altFlag)
-                            {
-                                Debug.Log("ALT down");
-                                altFlag = true;
-                            }
-                        }
-                        break;
-                    }
-                case EventType.keyUp:
-                    {
-                        if (ctrlFlag)
-                        {
-                            ctrlFlag = false;
-
-                            if (Target.creatingKnot)
-                            {
-                                FinishKnotCreation();
-                            }
-
-                            Debug.Log("Ctrl up");
-                        }
-                        if (altFlag)
-                        {
-                            Debug.Log("Alt Up");
-                            altFlag = false;
-                        }
-                        break;
-                    }
-                case EventType.mouseUp:
-                    {
-                        if (e.button == 1)
-                        {
-                            Target.DeselectAll();
-                        }
-                        Debug.Log(e.button);
-                        Debug.Log("Mouse UP");
-                        break;
-                    }
-
-
-
-
-            }
-        }
-        
         void CheckForVertexTypeCycle()
         {
             Event e = Event.current;
@@ -548,6 +482,149 @@ namespace VFX.ShapeSystem
                 }
             }
         }
+
+        void CheckKeyboardModifierInput()
+        {
+            Event e = Event.current;
+            switch (e.type)
+            {
+                case EventType.keyDown:
+                {
+                    if (e.control)
+                    {
+                        if (!ctrlFlag)
+                        {
+                            Debug.Log("CTRL down");
+                            if (!Target.creatingKnot)
+                            {
+                                StartKnotCreation();
+                            }
+                            ctrlFlag = true;
+                        }
+                    }
+                    if (e.alt)
+                    {
+                        if (!altFlag)
+                        {
+                            Debug.Log("ALT down");
+                            altFlag = true;
+                        }
+                    }
+                    break;
+                }
+                case EventType.keyUp:
+                {
+                    if (ctrlFlag)
+                    {
+                        ctrlFlag = false;
+
+                        if (Target.creatingKnot)
+                        {
+                            FinishKnotCreation();
+                        }
+                        Debug.Log("Ctrl up");
+                    }
+                    if (altFlag)
+                    {
+                        Debug.Log("Alt Up");
+                        altFlag = false;
+                    }
+                    break;
+                }
+                case EventType.mouseUp:
+                {
+                    if (e.button == 1)
+                    {
+                        Target.DeselectAll();
+                    }
+                    if (e.button == 2)
+                    {
+                        if (Target.selectedKnots.Count == 1)
+                        {
+                            CreateContextMenu();
+                                e.Use();
+                        }
+                    }
+                    Debug.Log("Mouse UP "+e.button.ToString());
+                    break;
+                }
+            }
+        }
         
+
+        void CreateContextMenu()
+        {
+            // create the menu and add items to it
+            GenericMenu menu = new GenericMenu();
+
+            // forward slashes nest menu items under submenus
+            AddMenuItemForKnotType(menu, "Linear", KnotType.Linear);
+            AddMenuItemForKnotType(menu, "Smooth", KnotType.Smooth);
+            AddMenuItemForKnotType(menu, "Free", KnotType.Bezier);
+
+
+            /*
+
+            // forward slashes nest menu items under submenus
+            AddMenuItemForColor(menu, "RGB/Red", Color.red);
+            AddMenuItemForColor(menu, "RGB/Green", Color.green);
+            AddMenuItemForColor(menu, "RGB/Blue", Color.blue);
+
+            // an empty string will create a separator at the top level
+            menu.AddSeparator("");
+
+            AddMenuItemForColor(menu, "CMYK/Cyan", Color.cyan);
+            AddMenuItemForColor(menu, "CMYK/Yellow", Color.yellow);
+            AddMenuItemForColor(menu, "CMYK/Magenta", Color.magenta);
+            // a trailing slash will nest a separator in a submenu
+            menu.AddSeparator("CMYK/");
+            AddMenuItemForColor(menu, "CMYK/Black", Color.black);
+
+            menu.AddSeparator("");
+
+            AddMenuItemForColor(menu, "White", Color.white);
+            */
+
+            // display the menu
+            menu.ShowAsContext();
+
+        }
+
+        // serialize field on window so its value will be saved when Unity recompiles
+        [SerializeField]
+        Color m_Color = Color.white;
+
+
+        // a method to simplify adding menu items
+        void AddMenuItemForColor(GenericMenu menu, string menuPath, Color color)
+        {
+            // the menu item is marked as selected if it matches the current value of m_Color
+            menu.AddItem(new GUIContent(menuPath), m_Color.Equals(color), OnColorSelected, color);
+        }
+
+        // a method to simplify adding menu items
+        void AddMenuItemForKnotType(GenericMenu menu, string menuPath, KnotType type)
+        {
+            // the menu item is marked as selected if it matches the current value of m_Color
+            menu.AddItem(new GUIContent(menuPath), Target.selectedKnots[0].kType.Equals(type), OnTypeSelected, type);
+        }
+
+        // the GenericMenu.MenuFunction2 event handler for when a menu item is selected
+        void OnTypeSelected(object type)
+        {
+            Target.selectedKnots[0].kType = (KnotType)type;
+        }
+
+        // the GenericMenu.MenuFunction2 event handler for when a menu item is selected
+        void OnColorSelected(object color)
+        {
+            m_Color = (Color)color;
+        }
+
+
+
+
+
+
     }
 }

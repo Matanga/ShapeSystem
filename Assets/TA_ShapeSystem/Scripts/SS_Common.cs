@@ -606,15 +606,17 @@ namespace VFX.ShapeSystem
             return t;
         }
 
+
+
         #endregion
 
         #region Bezier Helper Methods
 
 
         //Divide the curve into equal steps
-        public static List<Vector3> DivideCurveIntoSteps(int numSteps, ShapeElement element,Transform theT)
+        public static List<Vector3> ResampleCurve(int numSteps, ShapeElement element,Transform theT)
         {
-            float totalLenght = GetCurveTotalLength(element,theT);
+            float totalLenght = GetCurveLength(element,theT);
             float sectionLength = totalLenght / numSteps;
 
 
@@ -704,7 +706,7 @@ namespace VFX.ShapeSystem
         /// Gets the sum of all individuals segments in this curve
         /// </summary>
         /// <returns></returns>
-        public static float GetCurveTotalLength(ShapeElement element, Transform theT)
+        public static float GetCurveLength(ShapeElement element, Transform theT)
         {
             float TotalLenghtSum = 0;
             //Draw Each Element
@@ -729,7 +731,7 @@ namespace VFX.ShapeSystem
         /// 
         /// </summary>
         /// <returns>a Vector3 in world coordinates </returns>
-        public static Vector3 GetPosAtCurvePoint(BezierSegment seg, float dist)
+        public static Vector3 GetWorldPosAtCurvePoint(BezierSegment seg, float dist)
         {
 
             //Find the total length of the curve
