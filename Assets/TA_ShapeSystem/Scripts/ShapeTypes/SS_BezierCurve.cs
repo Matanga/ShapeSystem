@@ -5,136 +5,14 @@ using System.Collections.Generic;
 
 namespace VFX.ShapeSystem
 {
-    public enum KnotType {Linear,Smooth,Bezier }
-
-    [System.Serializable]
-    public class ShapeKnot
-            {
-                public int myElementIndex;
-                public int myIndex;
-
-                public bool isSelected;
-
-                public KnotType kType= KnotType.Linear;
-
-                public Vector3 kPos;
-                public Vector3 KWorldPos(Transform t)
-                {
-                    return (t.TransformPoint(kPos)) ;                   
-                }                
-            
-                public Vector3 kScale;
-                public Vector3 kRotation;
-
-            
-                public Vector3 kHandleIn;
-                public Vector3 KHandleInWorldPos(Transform t)
-                {
-                    return (t.TransformPoint(kPos)+kHandleIn);
-                }                
-            
-                public Vector3 kHandleOut;
-                public Vector3 KHandleOutWorldPos(Transform t)
-                {
-                    return (t.TransformPoint(kPos) + kHandleOut);
-                }   
-
-            }
-
-    [System.Serializable]
-    public class ShapeElement
-    {
-        public int myIndex;
-        public ShapeKnot[] knots;
-
-        public void AddKnot(int theIndex, Vector3 pos)
-        {
-            Debug.Log("Adding knot");
-
-            ShapeKnot[] newKnots = new ShapeKnot[knots.Length + 1];
-
-
-            ShapeKnot theKnot = new ShapeKnot();
-            theKnot.myIndex = theIndex;
-            theKnot.myElementIndex = myIndex;
-            //Handle in of the first Knot
-            theKnot.kHandleIn = new Vector3(0, 0, -1);
-            //Handle out of the first Knot
-            theKnot.kHandleOut = new Vector3(0, 0, 1);
-
-            for (int i = 0; i < newKnots.Length; i++)
-            {
-
-                if (i < theIndex)
-                {
-                    newKnots[i] = knots[i];
-                }
-                if (i == theIndex)
-                {
-                    newKnots[i] = theKnot;
-                }
-                if (i > theIndex)
-                {
-                    newKnots[i] = knots[i-1]; ;
-                }
-            }
-            knots = newKnots;
-
-        }
-
-        public void AddKnot(ShapeKnot theKnot)
-        {
-            Debug.Log("Adding knot");
-
-            ShapeKnot[] newKnots = new ShapeKnot[knots.Length + 1];
-
-            for (int i = 0; i < knots.Length; i++)
-            {
-               newKnots[i] = knots[i];
-            }
-            newKnots[newKnots.Length - 1] = theKnot;
-
-            knots = newKnots;
-            UpdateKnots();
-        }
-
-        public void RemoveKnot(int index)
-        {
-            if (knots.Length > 2)
-            {
-                List<ShapeKnot> newKnots = new List<ShapeKnot>();
-
-                for (int i = 0; i < knots.Length; i++)
-                {
-                    if (i != index)
-                    {
-                        newKnots.Add(knots[i]);
-                    }
-                }
-                knots = newKnots.ToArray();
-                UpdateKnots();
-            }
-        }
-
-
-        void UpdateKnots()
-        {
-            for (int i = 0; i < knots.Length; i++)
-            {
-                knots[i].myIndex = i;
-            }
-        }
-
-
-    }
 
     public struct BezierSegment
-        {
-            public Vector3 A;
-            public Vector3 B;
-            public Vector3 C;
-            public Vector3 D;
-        }
+    {
+        public Vector3 A;
+        public Vector3 B;
+        public Vector3 C;
+        public Vector3 D;
+    }
     
     [ExecuteInEditMode]
     public class SS_BezierCurve : MonoBehaviour
@@ -250,7 +128,6 @@ namespace VFX.ShapeSystem
             return theVec;
         }
 
-
         ////////////////////////////////////////
         /// INITIALIZATION
         /// INITIALIZATION
@@ -273,7 +150,6 @@ namespace VFX.ShapeSystem
             //Setup knot index
             elements[0].knots[0].myIndex = 0;
 
-
             //Position of the first knot 
             elements[0].knots[0].kPos = new Vector3(0, 0, -5);
             //Handle in of the first Knot
@@ -281,14 +157,12 @@ namespace VFX.ShapeSystem
             //Handle out of the first Knot
             elements[0].knots[0].kHandleOut = new Vector3(0, 0,2);
 
-
             //Create the second knot
             elements[0].knots[1] = new ShapeKnot();
             //Setup the element Index
             elements[0].knots[1].myElementIndex = 0;
             //Setup knot index
             elements[0].knots[1].myIndex = 1;
-
 
             //Position of the second knot 
             elements[0].knots[1].kPos = new Vector3(0, 0, 5);
@@ -299,6 +173,226 @@ namespace VFX.ShapeSystem
 
         }
 
+
+        ////////////////////////////////////////
+        /// SPLINE UPDATE
+        /// SPLINE UPDATE
+        ////////////////////////////////////////
+
+
+        /*   RECALCULATE LINEAR  
+            In this mode the Control Points ( tangents) go half-way the distance between them ant their neighbouring control point         
+            tangentIn of knot[n] will go half way toward knot[n-1].tangentOut    
+            tangentOut of knot[n] will go half way toward knot[n+1].tangentIn             
+        */
+
+        void RecalculateLinearKnot(ShapeElement element, int knotIndex)
+        {
+            //Debug.Log("recalculating index " + knotIndex.ToString());            
+            //Local Variables
+            Vector3 knotWorldPos = element.knots[knotIndex].KWorldPos(transform);
+            Vector3 tempWorldPos = Vector3.zero;
+
+            bool calculateOutHandle = !(knotIndex == element.knots.Length - 1);
+            bool calculateInHandle = !(knotIndex == 0) ;
+
+            if (calculateOutHandle)
+            {
+                Vector3 handleOutTarget = element.knots[knotIndex + 1].KHandleInWorldPos(transform);
+                tempWorldPos = Vector3.Lerp(knotWorldPos, handleOutTarget, 0.5f);
+                element.knots[knotIndex].kHandleOut = tempWorldPos - knotWorldPos;
+            }
+            if (calculateInHandle)
+            {
+                Vector3 handleInTarget = element.knots[knotIndex - 1].KHandleOutWorldPos(transform);
+                tempWorldPos = Vector3.Lerp(knotWorldPos, handleInTarget, 0.5f);
+                element.knots[knotIndex].kHandleIn = tempWorldPos - knotWorldPos;
+            }
+        }
+
+
+        /*   RECALCULATE SMOOTH  
+            Algorithm based on : http://www.efg2.com/Lab/Graphics/Jean-YvesQueinecBezierCurves.htm
+          
+        */
+
+
+
+
+
+        void RecalculateSmoothKnot(ShapeElement element, int knotIndex)
+        {           
+
+            //Debug.Log("recalculating index " + knotIndex.ToString());            
+            //Local Variables
+
+            bool isLast = (knotIndex == element.knots.Length - 1);
+            bool isFirst = (knotIndex == 0);
+
+
+            if (!isLast && !isFirst)
+            {
+                //GET THE POINTS TO BE USED
+
+                Vector3 k0Pos = element.knots[knotIndex-1].KWorldPos(transform);
+                Vector3 k1Pos = element.knots[knotIndex].KWorldPos(transform);
+                Vector3 k2Pos = element.knots[knotIndex +1].KWorldPos(transform);
+
+
+                //GET THE OFFSETED LINE
+
+                //Get base Vector
+                Vector3 BaseVec = k0Pos - k2Pos;
+                float baseVecHalfLenght = Vector3.Magnitude(BaseVec) / 2;
+
+                Vector3 q0 = k1Pos + Vector3.Normalize(BaseVec) * baseVecHalfLenght;
+                Vector3 q1 = k1Pos + Vector3.Normalize(-BaseVec) * baseVecHalfLenght;
+
+
+
+                //GET THE IN TANGENT
+
+                //GET k2-k1 Vector3
+
+                Vector3 k2k1Vec = k2Pos - k1Pos;
+
+                //Get the smoothed point dist
+                float smoothPoint = k2k1Vec.magnitude / 4;
+
+                Vector3 pIn0 = k1Pos + Vector3.Normalize(k2k1Vec) * smoothPoint;
+                Vector3 pIn1 = Vector3.Lerp(k0Pos, k1Pos, 0.5f);
+
+                Vector3 inTangent = SS_Common.GetLineIntersection(q0, q1, pIn0, pIn1);
+
+                //ASSIGN THE TANGENT
+                element.knots[knotIndex].kHandleIn= inTangent - k1Pos ;
+
+
+
+                //GET THE OUT TANGENT
+
+                Vector3 k0k1Vec = k0Pos - k1Pos;
+
+                //Get the smoothed point dist
+                smoothPoint = k0k1Vec.magnitude / 4;
+
+                Vector3 pOut0 = k1Pos + Vector3.Normalize(k0k1Vec) * smoothPoint;
+                Vector3 pOut1 = Vector3.Lerp(k1Pos, k2Pos, 0.5f);
+
+
+                Vector3 outTangent = SS_Common.GetLineIntersection(q0, q1, pOut0, pOut1);
+
+                //ASSIGN THE TANGENT
+                element.knots[knotIndex].kHandleOut =  k1Pos-outTangent;
+
+
+            }
+
+
+
+            if (isFirst)    //We only calculate the OutTangent
+            {
+                Vector3 k0Pos = element.knots[0].KWorldPos(transform);
+                Vector3 k1Pos = element.knots[1].KWorldPos(transform);
+                Vector3 k2Pos = element.knots[2].KWorldPos(transform);
+
+                //FIRST LINE P
+                //Midpoint of knot[0] , knot[1]   = "P0"
+                Vector3 p0 = Vector3.Lerp(k0Pos, k1Pos, 0.5f);
+
+                //Dir of   knot[2] - knot[1]  = k2k1Dir
+                Vector3 k2k1Dir = k2Pos - k1Pos;
+
+                //Half distance between knot[2] - knot[1] = k2k1halfDist
+                float k2k1HalfDist = k2k1Dir.magnitude / 2;
+
+                //Get Point starting at "P0" traveling "k2k1halfDist" in "k2k1Dir" direction = "P1"
+                Vector3 p1 = p0 + Vector3.Normalize(k2k1Dir) * k2k1HalfDist;
+
+                //SECOND LINE K
+                //K0 = knot[0]
+                Vector3 q0 = k0Pos;
+
+                //Get vector from knot[0] to knot[2] = "k0k2Vector"
+                Vector3 k0k2Vector = k2Pos - k0Pos;
+
+                //Get a quarter of the length of "k0k1Vector" = "smoothLength"
+                float smoothLength = Vector3.Magnitude(k0k2Vector) / 4;
+
+                //K1 = Starting at P1 travel "smoothLength" along  "k0k2Vector" direction
+                Vector3 q1 = p1 + Vector3.Normalize(k0k2Vector) * smoothLength;
+
+                //GET INTERSECTION
+                Vector3 intersection = SS_Common.GetLineIntersection(p0, p1, q0, q1);
+
+                element.knots[0].kHandleOut = intersection - k0Pos;
+
+
+
+            }
+
+            if (isLast) //We only calculate the inTangent
+            {
+                Vector3 k0Pos = element.knots[knotIndex].KWorldPos(transform);
+                Vector3 k1Pos = element.knots[knotIndex-1].KWorldPos(transform);
+                Vector3 k2Pos = element.knots[knotIndex-2].KWorldPos(transform);
+
+                //FIRST LINE P
+                //Midpoint of knot[0] , knot[1]   = "P0"
+                Vector3 p0 = Vector3.Lerp(k0Pos, k1Pos, 0.5f);
+
+                //Dir of   knot[2] - knot[1]  = k2k1Dir
+                Vector3 k2k1Dir = k2Pos - k1Pos;
+
+                //Half distance between knot[2] - knot[1] = k2k1halfDist
+                float k2k1HalfDist = k2k1Dir.magnitude / 2;
+
+                //Get Point starting at "P0" traveling "k2k1halfDist" in "k2k1Dir" direction = "P1"
+                Vector3 p1 = p0 + Vector3.Normalize(k2k1Dir) * k2k1HalfDist;
+
+                //SECOND LINE K
+                //K0 = knot[0]
+                Vector3 q0 = k0Pos;
+
+                //Get vector from knot[0] to knot[2] = "k0k2Vector"
+                Vector3 k0k2Vector = k2Pos - k0Pos;
+
+                //Get a quarter of the length of "k0k1Vector" = "smoothLength"
+                float smoothLength = Vector3.Magnitude(k0k2Vector) / 4;
+
+                //K1 = Starting at P1 travel "smoothLength" along  "k0k2Vector" direction
+                Vector3 q1 = p1 + Vector3.Normalize(k0k2Vector) * smoothLength;
+
+                //GET INTERSECTION
+                Vector3 intersection = SS_Common.GetLineIntersection(p0, p1, q0, q1);
+
+
+                element.knots[knotIndex].kHandleIn = intersection - k0Pos;
+
+            }
+
+
+
+        }
+
+        public void UpdateSpline()
+        {
+            for (int i = 0; i < elements[0].knots.Length; i++)
+            {
+                switch (elements[0].knots[i].kType)
+                {
+                    case KnotType.Linear:
+                        RecalculateLinearKnot(elements[0], i);
+                        break;
+                    case KnotType.Smooth:
+                        RecalculateSmoothKnot(elements[0], i);
+                        break;
+                    case KnotType.Bezier:
+                        break;
+                }
+            }
+
+        }
 
         ////////////////////////////////////////
         /// UTILITIES UI
@@ -322,7 +416,6 @@ namespace VFX.ShapeSystem
 
             return pos;
         }
-                
 
         public void DeselectAll()
         {
@@ -336,7 +429,6 @@ namespace VFX.ShapeSystem
             }
 
         }
-
 
         ////////////////////////////////////////
         /// DRAWING UI

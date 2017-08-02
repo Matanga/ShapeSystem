@@ -129,7 +129,6 @@
     <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeInstancers\Editor\SS_GridScatterEditor.cs" />
     <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeInstancers\Editor\SS_WallEditor.cs" />
     <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeTypes\Editor\SS_BezierCurveInspector.cs" />
-    <Compile Include="Assets\TA_ShapeSystem\Scripts\ShapeTypes\Editor\ShapeTransformEditor.cs" />
     <Compile Include="Assets\TA_ShapeSystem\Scripts\Tests\Editor\GenericMenuExample.cs" />
     <Compile Include="Assets\TA_ShapeSystem\Scripts\VFX_Tool_LoftRenderer\Editor\VFX_LoftRenderer_Inspector.cs" />
   </ItemGroup>

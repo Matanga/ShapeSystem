@@ -153,10 +153,6 @@ namespace VFX.ShapeSystem
                 }
                 EditorGUILayout.EndVertical();
             }
-
-
-            
-
         }
 
         void DrawResampleUI()
@@ -222,6 +218,9 @@ namespace VFX.ShapeSystem
                 Undo.RecordObject(Target, "Change Look At Target Position");
 
                 knot.kPos = newPointPosition;
+
+                Target.UpdateSpline();
+
             }
 
         }
@@ -357,10 +356,24 @@ namespace VFX.ShapeSystem
                 {
                     DrawKnotMovementHandle(element.knots[i]);
 
-                    if (element.knots[i].kType == KnotType.Bezier || element.knots[i].kType == KnotType.Smooth)
+                    switch (element.knots[i].kType)
                     {
-                        DrawKnotBezierHandles(element.knots[i], true, true);
+                        case KnotType.Linear:
+                            break;
+                        case KnotType.Smooth:
+                            break;
+                        case KnotType.Bezier:
+                            DrawKnotBezierHandles(element.knots[i], true, true);
+                            break;
+                        default:
+                            break;
                     }
+
+
+                    //if (element.knots[i].kType == KnotType.Bezier || element.knots[i].kType == KnotType.Smooth)
+                    //{
+                    //    DrawKnotBezierHandles(element.knots[i], true, true);
+                   // }
                 }
                 else
                 {
@@ -440,7 +453,6 @@ namespace VFX.ShapeSystem
             Target.createdKnot = null;
             SwitchCollider();            
         }
-
 
         void CheckForVertexTypeCycle()
         {
@@ -613,6 +625,8 @@ namespace VFX.ShapeSystem
         void OnTypeSelected(object type)
         {
             Target.selectedKnots[0].kType = (KnotType)type;
+            Debug.Log("Changed Type");
+            Target.UpdateSpline();
         }
 
         // the GenericMenu.MenuFunction2 event handler for when a menu item is selected

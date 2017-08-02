@@ -470,7 +470,6 @@ namespace VFX.ShapeSystem
 
         #endregion
 
-
         #region Bezier Base Methods
 
         //The De Casteljau's Algorithm
@@ -605,6 +604,10 @@ namespace VFX.ShapeSystem
 
             return t;
         }
+
+
+
+
 
 
 
@@ -746,13 +749,85 @@ namespace VFX.ShapeSystem
 
             return pos;
         }
-        
-             
+
+
 
         #endregion
 
 
+        #region Line Methods    
 
+        public static float[] GetLineData(Vector3 p1, Vector3 p2)
+        {
+            float[] temp = new float[2];
+
+
+
+
+            return temp;
+        }
+
+        public static Vector3 GetLineIntersection(Vector3 p0, Vector3 p1, Vector3 q0, Vector3 q1)
+        {
+            Vector3 returnVec = Vector3.zero;
+            //Direction Vectors
+            Vector3 DP = p1 - p0;
+            Vector3 DQ = q1 - q0;
+            //Start difference
+            Vector3 PQ = q0 - p0;
+            //Find Values
+            float a = Vector3.Dot(DP, DP);
+            float b = Vector3.Dot(DP, DQ);
+            float c = Vector3.Dot(DQ, DQ);
+            float d = Vector3.Dot(DP, PQ);
+            float e = Vector3.Dot(DQ, PQ);
+            //Find discriminant
+            float DD =( a * c) -( b * b);
+
+            //Debug.Log("DD " + DD.ToString());
+            //If DD == 0 then segments are parallel
+            if (DD != 0)
+            {
+                //Find parameters for the closest points on lines 
+                float tt =Mathf.Abs( (b * e - c * d) / DD);
+                float uu = Mathf.Abs((a * e - b * d) / DD);
+
+                bool intersect = true;
+
+                if (tt < 0 || tt > 1)
+                    intersect = false;
+
+                if (uu < 0 || uu > 1)
+                    intersect = false;
+                //Debug.Log("tt " + tt.ToString()+" uu "+uu.ToString());
+
+                //Debug.Log("Intersect " + intersect.ToString());
+
+                if (intersect)
+                {
+                    //Find distance between points
+
+                    Vector3 P = p0 + tt * DP;
+                    Vector3 Q = q0 + uu * DQ;
+
+                    float dist = Vector3.Distance(P, Q);
+                    //Debug.Log("dist " + dist.ToString());
+
+                    if (dist < 0.1f)
+                    {
+                        returnVec = P;
+                        //Debug.Log("returnVec " + returnVec.ToString());
+                    }
+                }
+            }
+            return returnVec;
+
+        }
+
+
+
+
+        #endregion
 
     }
 }
