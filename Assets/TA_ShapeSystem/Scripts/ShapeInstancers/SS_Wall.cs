@@ -15,7 +15,6 @@ namespace VFX.ShapeSystem
     public class SS_CornerObjects
     {
         public GameObject thePrefab;
-
     }
 
 
@@ -79,7 +78,6 @@ namespace VFX.ShapeSystem
         /// </summary>
         public SS_WallObjects[] theWallPrefabs;
 
-
         /// <summary>
         /// The Data Holders of the Corner Segments. These contain the prefab reference, and other info.
         /// </summary>        
@@ -142,7 +140,6 @@ namespace VFX.ShapeSystem
                     RectTransform.GetWorldCorners(thePoints);
                     return thePoints;
                 }
-
             }
         }
 
@@ -171,8 +168,6 @@ namespace VFX.ShapeSystem
                 return Vector3.Distance(thePoints[0], thePoints[3]);
             }
         }
-
-
 
         #endregion
 

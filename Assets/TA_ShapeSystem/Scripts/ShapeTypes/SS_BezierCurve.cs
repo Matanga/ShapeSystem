@@ -57,7 +57,7 @@ namespace VFX.ShapeSystem
         public bool showResampleUI;
         public int numSteps = 10;
 
-        public Color curveColor = Color.blue;
+        public Color curveColor = Color.red;
 
         public Vector3[] thePoints()
         {
@@ -93,11 +93,49 @@ namespace VFX.ShapeSystem
             for (int i = 0; i < elements.Length; i++)
             {
                 //Debug.Log("Element "+ i);
-                DrawElement(elements[i]);
+                //DrawElement(elements[i]);
+
             }
 
-            Gizmos.color = Color.green;
+            curveSteps.Clear();
+            curveSteps = SS_Common.ResampleCurve(numSteps, elements[0], transform);
+            for (int i = 0; i < curveSteps.Count - 1; i++)
+            {
+                Gizmos.color = Color.black;
+                Gizmos.DrawIcon(transform.position, "Light Gizmo.tiff", true);
+            }
+            
 
+            Gizmos.color = Color.green;
+            /*
+            //Draw Each Element
+            for (int i = 0; i < elements.Length; i++)
+            {
+                //Debug.Log("Element "+ i);
+                DrawElement(elements[i]);
+                Gizmos.DrawIcon(transform.position, "Light Gizmo.tiff", true);
+            }*/
+
+
+
+
+
+#if UNITY_EDITOR
+
+            if (UnityEditor.Selection.activeGameObject != gameObject)
+            {
+                DrawResampledCurve(curveColor);
+            }
+            else
+            {
+                //Draw Each Element
+                for (int i = 0; i < elements.Length; i++)
+                {
+                    //Debug.Log("Element "+ i);
+                    DrawElement(elements[i]);
+                }
+            }
+#endif
 
             if (showResampleUI)
             {
@@ -179,7 +217,6 @@ namespace VFX.ShapeSystem
         /// SPLINE UPDATE
         ////////////////////////////////////////
 
-
         /*   RECALCULATE LINEAR  
             In this mode the Control Points ( tangents) go half-way the distance between them ant their neighbouring control point         
             tangentIn of knot[n] will go half way toward knot[n-1].tangentOut    
@@ -210,15 +247,9 @@ namespace VFX.ShapeSystem
             }
         }
 
-
         /*   RECALCULATE SMOOTH  
             Algorithm based on : http://www.efg2.com/Lab/Graphics/Jean-YvesQueinecBezierCurves.htm
-          
         */
-
-
-
-
 
         void RecalculateSmoothKnot(ShapeElement element, int knotIndex)
         {           
@@ -399,7 +430,6 @@ namespace VFX.ShapeSystem
         /// UTILITIES UI
         ////////////////////////////////////////
 
-
         /// Returns a Vector3 in world coordinates
         Vector3 GetPosAtCurvePoint(BezierSegment seg, float dist)
         {
@@ -443,7 +473,7 @@ namespace VFX.ShapeSystem
 
         void DrawBezierSegment(BezierSegment seg)
         {
-            UnityEditor.Handles.DrawBezier(seg.A, seg.D, seg.B, seg.C, Color.red, null, 1);
+            UnityEditor.Handles.DrawBezier(seg.A, seg.D, seg.B, seg.C, curveColor, null, 1);
         }
                 
         void DrawBezierSegmentTest(BezierSegment seg)
@@ -512,7 +542,6 @@ namespace VFX.ShapeSystem
                 seg.C = element.knots[i + 1].KHandleInWorldPos(transform);  //END TANGENT
                 seg.D = element.knots[i + 1].KWorldPos(transform);          //END POINT
                 */
-
                 //Draw it
                 DrawBezierSegment(seg);
             }
@@ -541,6 +570,27 @@ namespace VFX.ShapeSystem
                 DrawLinearSegment(curveSteps[i], curveSteps[i + 1]);
             }
         }
+
+
+        void DrawResampledCurve(Color theColor)
+        {
+            //Draws debug segments
+            curveSteps.Clear();
+            curveSteps = SS_Common.ResampleCurve(300, elements[0], transform);
+
+            Gizmos.color = theColor;
+            for (int i = 0; i < curveSteps.Count - 1; i++)
+            {
+                DrawLinearSegment(curveSteps[i], curveSteps[i + 1]);
+            }
+        }
+
+
+
+
+
+
+
 
         ////////////////////////////////////////
         /// DEBUG METHODS

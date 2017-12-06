@@ -10,7 +10,7 @@ namespace VFX.ShapeSystem
     {
         #region Creation Menu Buttons   
 
-        [MenuItem("GameObject/Create Other/LevelCanvas")]
+        [MenuItem("GameObject/Create Other/SS/LevelCanvas")]
         static void SS_CreateLevelCanvas()
         {
             //Create the canvas object
@@ -46,7 +46,7 @@ namespace VFX.ShapeSystem
 
         }
 
-        [MenuItem("GameObject/Create Other/LevelArea")]
+        [MenuItem("GameObject/Create Other/SS/LevelArea")]
         static void SS_CreateSSArea()
         {
             if ((Selection.activeGameObject) == null) return;
@@ -71,14 +71,14 @@ namespace VFX.ShapeSystem
 
         }
         
-        [MenuItem("GameObject/Create Other/SS_Wall")]
+        [MenuItem("GameObject/Create Other/SS/SS_Wall")]
         static void SS_CreateMenuItemWall()
         {
             if ((Selection.activeGameObject) == null) return;
             SS_CreateWall((Selection.activeGameObject));
         }
 
-        [MenuItem("GameObject/Create Other/SS_Floor")]
+        [MenuItem("GameObject/Create Other/SS/SS_Floor")]
         static void SS_CreateMenuItemFloor()
         {
             if ((Selection.activeGameObject) == null) return;
@@ -87,21 +87,21 @@ namespace VFX.ShapeSystem
 
         }
 
-        [MenuItem("GameObject/Create Other/SS_GridInstancer")]
+        [MenuItem("GameObject/Create Other/SS/SS_GridInstancer")]
         static void SS_CreateSSGridInstancer()
         {
             if ((Selection.activeGameObject) == null) return;
             SS_CreateGridInsts(Selection.activeGameObject);
         }
 
-        [MenuItem("GameObject/Create Other/SS_GridScatter")]
+        [MenuItem("GameObject/Create Other/SS/SS_GridScatter")]
         static void SS_CreateSSGridScatter()
         {
             if ((Selection.activeGameObject) == null) return;
             SS_CreateGridInsts(Selection.activeGameObject);
         }
 
-        [MenuItem("GameObject/Create Other/SS_Spline")]
+        [MenuItem("GameObject/Create Other/SS/SS_Spline")]
         static void SS_CreateSSSpline()
         {
             SS_CreateSpline();
@@ -753,7 +753,6 @@ namespace VFX.ShapeSystem
 
 
         #endregion
-
 
         #region Line Methods    
 

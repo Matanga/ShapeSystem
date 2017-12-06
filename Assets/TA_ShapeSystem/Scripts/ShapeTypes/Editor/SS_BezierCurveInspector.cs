@@ -29,6 +29,9 @@ namespace VFX.ShapeSystem
         SerializedProperty showResampleUI;
 
         SerializedProperty numSteps;
+        SerializedProperty curveColor;
+
+
 
         //////////////////////////
         //////EDITOR METHODS
@@ -43,13 +46,14 @@ namespace VFX.ShapeSystem
         void OnEnable()
         {
             Target.DeselectAll();
-
             showResampleUI = serializedObject.FindProperty("showResampleUI");
             numSteps = serializedObject.FindProperty("numSteps");
+            curveColor = serializedObject.FindProperty("curveColor");
+
+
 
             ctrlFlag = false;
             altFlag = false;
-
         }
 
         void OnSceneGUI()
@@ -65,29 +69,24 @@ namespace VFX.ShapeSystem
             {
                 //Debug.Log("a knot is selected");
                 CheckForVertexTypeCycle();
-            }*/
+            }
+            */
             CheckKeyboardModifierInput();
         }
 
         public override void OnInspectorGUI()
         {
             //DrawDefaultInspector();
-
             serializedObject.Update();
             EditorGUI.BeginChangeCheck();
-
             DrawSelectedKnotInfo();
-
             DrawResampleUI();
-
-            EditorGUILayout.LabelField(("Length: "+SS_Common.GetCurveLength(Target.elements[0],Target.transform).ToString()));
-            
+            EditorGUILayout.LabelField(("Length: "+SS_Common.GetCurveLength(Target.elements[0],Target.transform).ToString()));            
             if (EditorGUI.EndChangeCheck())
             {
-                Undo.RecordObject(Target, "Switch Transform Flags");
+                Undo.RecordObject(Target, "BezierRedraw");
             }
             serializedObject.ApplyModifiedProperties();
-
         }
         
         //////////////////////////
@@ -171,6 +170,8 @@ namespace VFX.ShapeSystem
             numSteps.intValue = EditorGUILayout.IntSlider(numSteps.intValue, 1, 100);
 
             EditorGUILayout.PropertyField(showResampleUI);
+
+            EditorGUILayout.PropertyField(curveColor);
 
 
             serializedObject.ApplyModifiedProperties();
@@ -563,7 +564,6 @@ namespace VFX.ShapeSystem
             }
         }
         
-
         void CreateContextMenu()
         {
             // create the menu and add items to it
