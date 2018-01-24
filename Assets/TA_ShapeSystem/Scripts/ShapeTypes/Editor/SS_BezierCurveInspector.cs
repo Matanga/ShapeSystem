@@ -642,3 +642,36 @@ namespace VFX.ShapeSystem
 
     }
 }
+
+/*
+static void OnSceneGUICustom(SceneView sceneview)
+{
+    if (Event.current.button == 1)
+    {
+        if (Event.current.type == EventType.MouseDown)
+        {
+            //Debug.Log("CONTEXT MENU: Event MouseDOWN!");
+            beginCheck = true;
+            wasDragged = false;
+        }
+
+        if (beginCheck)
+        {
+            if (Event.current.type == EventType.MouseDrag)
+            {
+                //Debug.Log("CONTEXT MENU: Event Drag!");
+                wasDragged = true;
+            }
+
+            if (!wasDragged && Event.current.type == EventType.MouseUp)
+            {
+                //Debug.Log("CONTEXT MENU: Event MouseUP!");
+                lastPressedEvent = Event.current;
+                Event.current.Use();
+                CreateMenu();
+                ShowMenu();
+                beginCheck = false;
+            }
+        }
+    }
+}*/
